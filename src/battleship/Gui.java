@@ -1,23 +1,33 @@
 package battleship;
 
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
+import javax.swing.JPanel;
 
-public class Gui {
+@SuppressWarnings("serial")
 
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				
-				JFrame frame = new JFrame("Hello World Swing!");
-				frame.setSize(500, 400);
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				frame.setVisible(true);
-			}
-		});
-		
-	
-		
+//Main Frame that houses all the panels
+public class Gui extends JFrame{
+	private GamePanel myGamePanel;
+	public Gui ()
+	{
+		super("Battleship");
+		myGamePanel = new GamePanel();
+		start();
 	}
-
+	
+	public void start()
+	{
+		setVisible(true);
+		buildGUI();
+	}
+	
+	public void buildGUI()
+	{
+		//Master panel to hold all other JPanels
+		JPanel masterPanel = new JPanel();
+		masterPanel.add(myGamePanel);
+		//add(masterPanel);
+		add(myGamePanel);
+		pack(); //pack "resizes" the panel so things fit in it.
+	}
 }
