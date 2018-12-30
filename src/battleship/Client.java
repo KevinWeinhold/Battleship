@@ -8,89 +8,51 @@ import java.awt.event.ActionEvent;
 import java.io.*;
 
 @SuppressWarnings("serial")
-public class Client extends JPanel{
+public class Client implements Runnable{
 
 	private String serverIP;
 	private Socket connection;
-	private ObjectOutputStream output;
+	private static ObjectOutputStream output;
 	private ObjectInputStream input;
-	private JTextField userText;
-	private JTextArea chatWindow;
-		
-	private static final int DEFAULT_WIDTH = 80;
-	private static final int DEFAULT_HEIGHT = 80;
+	private boolean game;
 	
 	public Client(String host)
 	{
 		serverIP = host;
-		setLayout(new BorderLayout());
-		userText = new JTextField();
-		userText.setEditable(false);
-		userText.addActionListener(
-			new ActionListener() {
-				public void actionPerformed(ActionEvent event) {
-					sendMessage(event.getActionCommand());
-					userText.setText("");
-				}
-			}
-		);
-		this.add(userText,BorderLayout.SOUTH);
-		chatWindow = new JTextArea();
-		this.add(chatWindow,BorderLayout.NORTH);
-		chatWindow.setEditable(false);
-		this.add(new JScrollPane(chatWindow));
-		this.setPreferredSize(new Dimension(DEFAULT_WIDTH,DEFAULT_HEIGHT));
-		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setVisible(true);
-	}
-	
-	public void startRunning(){
-		try
-		{
-			connectToServer();
-			setupStreams();
-			whileChatting();
-		}catch(EOFException eofException) {
-			showMessage("\n Server ended the connection!");
-		}catch(IOException ioException) {
-				ioException.printStackTrace();
-		}finally
-		{
-			closeCrap();
-		}
 	}
 	
 	//connect to server
 	private void connectToServer() throws IOException{
-		showMessage("Attempting Connection...\n");
+		ServerPanel.showMessage("Attempting Connection...\n");
 		connection = new Socket(InetAddress.getByName(serverIP),4444);
-		showMessage("Connected to :" + connection.getInetAddress().getHostName());
+		ServerPanel.showMessage("Connected to :" + connection.getInetAddress().getHostName());
 	}
 	
 	private void setupStreams() throws IOException {
 		output = new ObjectOutputStream(connection.getOutputStream());
 		output.flush();
 		input = new ObjectInputStream(connection.getInputStream());
-		showMessage("\n Streams are now setup! \n");
+		ServerPanel.showMessage("\n Streams are now setup! \n");
+		game = true;
 	}
 	
 	private void whileChatting() throws IOException {
 		String message = "You are now connected!";
 		sendMessage(message);
-		ableToType(true);
+		ServerPanel.ableToType(true);
 		do {
 			try {
 				message = (String) input.readObject();
-				showMessage("\n" + message);
+				ServerPanel.showMessage("\n" + message);
 			}catch(ClassNotFoundException classNotFoundException) {
-				showMessage("\n idk wtf that user sent!");
+				ServerPanel.showMessage("\n idk wtf that user sent!");
 			}
 		}while(!message.equals("SERVER - END"));
 	}
 	
 	private void closeCrap()
 	{
-		showMessage("\n Closing connections...\n");
+		ServerPanel.showMessage("\n Closing connections...\n");
 		try {
 			output.close();
 			input.close();
@@ -100,33 +62,36 @@ public class Client extends JPanel{
 		}
 	}
 	
-	private void sendMessage(String message){
+	public static void sendMessage(String message){
 		try {
 			output.writeObject("CLIENT -  " + message);
 			output.flush();
-			showMessage("\nCLIENT - " + message);
+			ServerPanel.showMessage("\nCLIENT - " + message);
 		}catch(IOException ioException) {
 			System.out.println("\n ERROR CANT SEND THAT MESSAGE");
 		}
 	}
 	
-	private void showMessage(final String text) {
-		SwingUtilities.invokeLater(
-				new Runnable() {
-					public void run() {
-						chatWindow.append(text);
-					}
-				}
-			);
+	public boolean getGame()
+	{
+		return game;
 	}
-	
-	private void ableToType(final boolean tof) {
-		SwingUtilities.invokeLater(
-				new Runnable() {
-					public void run() {
-						userText.setEditable(tof);
-					}
-				}
-			);
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		try
+		{
+			connectToServer();
+			setupStreams();
+			whileChatting();
+		}catch(EOFException eofException) {
+			ServerPanel.showMessage("\n Server ended the connection!");
+		}catch(IOException ioException) {
+				ioException.printStackTrace();
+		}finally
+		{
+			closeCrap();
+		}
 	}
 }
