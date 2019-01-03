@@ -10,7 +10,8 @@ public class Gui extends JFrame{
 	private GamePanel myGamePanel;
 	public Gui ()
 	{
-		super("Battleship");
+		super("Batleship");
+	
 		myGamePanel = new GamePanel();
 		start();
 	}
@@ -30,4 +31,5 @@ public class Gui extends JFrame{
 		add(myGamePanel);
 		pack(); //pack "resizes" the panel so things fit in it.
 	}
+	
 }
