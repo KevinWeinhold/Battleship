@@ -10,7 +10,8 @@ public class ServerPanel extends JPanel{
 	private static JTextArea chatWindow;
 	private static final int DEFAULT_WIDTH = 80;
 	private static final int DEFAULT_HEIGHT = 80;
-	private boolean isClient;
+	private static boolean isClient;
+	private static boolean readyToSend;
 	
 	ServerPanel(boolean tof)
 	{
@@ -21,13 +22,8 @@ public class ServerPanel extends JPanel{
 		userText.addActionListener(
 			new ActionListener() {
 				public void actionPerformed(ActionEvent event) {
-					if(isClient) {
-						Client.sendMessage(event.getActionCommand());	
-					}
-					else
-					{
-						Server.sendMessage(event.getActionCommand());
-					}
+					
+					Game.positionInput(event.getActionCommand());
 					userText.setText("");
 				}
 			}
@@ -60,5 +56,9 @@ public class ServerPanel extends JPanel{
 					}
 				}
 			);
+	}
+	
+	public void ableToSend(final boolean tof) {
+		readyToSend = tof;
 	}
 }

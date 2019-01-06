@@ -20,8 +20,7 @@ public class Gui extends JFrame implements ActionListener{
 	private static final int DEFAULT_WIDTH = 500;
 	private static final int DEFAULT_HEIGHT = 500;
 	private GamePanel myGamePanel;
-	private JPanel masterPanel;
-	private Server serverPanel;
+	private ServerPanel chatPanel;
 	private JTextArea textArea;
 	private JButton button1;
 	private JButton button2;
@@ -33,7 +32,6 @@ public class Gui extends JFrame implements ActionListener{
 	{
 		super("Battleship");
 		
-		masterPanel = new JPanel();
 		myGamePanel = new GamePanel();
 		
 		button1 = new JButton("Server");
@@ -77,36 +75,26 @@ public class Gui extends JFrame implements ActionListener{
 		remove(button2);
 		revalidate();
 		//Client
-		if(isClient)
-		{
-			ServerPanel kevin = new ServerPanel(true);
-			add(kevin, BorderLayout.SOUTH);
-			pack();
-		}
-		//Server
-		else
-		{
-			ServerPanel evan = new ServerPanel(false);
-			add(evan, BorderLayout.SOUTH);
-			pack();
-		}
+		chatPanel = new ServerPanel(isClient);
+		add(chatPanel, BorderLayout.SOUTH);
+		pack();
 	}
 	
 	public void actionPerformed(ActionEvent e) {
 	    if ("host".equals(e.getActionCommand())) {
 	    	//Server
 	        addChat(false);
-	        isClient = 1;
+	        App.clientServerSetup(true);
 	    } else {
 	    	//Client
 	        addChat(true);
-	        isClient = 2;
+	        App.clientServerSetup(false);
 	    }
 	}
 	
-	public int gameGetter()
+	public void toggleChat(final boolean tof)
 	{
-		return isClient;
+		ServerPanel.ableToType(tof);
 	}
 
 	

@@ -1,6 +1,8 @@
 package battleship;
 
 import java.net.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -14,7 +16,7 @@ public class Client implements Runnable{
 	private Socket connection;
 	private static ObjectOutputStream output;
 	private ObjectInputStream input;
-	private boolean game;
+	private static AtomicBoolean atomicBool = new AtomicBoolean(false);
 	
 	public Client(String host)
 	{
@@ -33,17 +35,26 @@ public class Client implements Runnable{
 		output.flush();
 		input = new ObjectInputStream(connection.getInputStream());
 		ServerPanel.showMessage("\n Streams are now setup! \n");
-		game = true;
+		App.setupGame();
 	}
 	
 	private void whileChatting() throws IOException {
-		String message = "You are now connected!";
-		sendMessage(message);
+		String message = "";
 		ServerPanel.ableToType(true);
 		do {
 			try {
 				message = (String) input.readObject();
+				//System.out.print(message.equals("SERVER - SERVER is ready!"));
+				//Handle INCOMING MESSAGES
 				ServerPanel.showMessage("\n" + message);
+				if(message.equals("SERVER - SERVER is ready!"))
+				{
+					//atomicBool.set(true);
+					App.waitForSetup();
+				}
+				else if(message.contains("FIRE ON:")) {
+					Game.getMove(message);
+				}
 			}catch(ClassNotFoundException classNotFoundException) {
 				ServerPanel.showMessage("\n idk wtf that user sent!");
 			}
@@ -64,18 +75,19 @@ public class Client implements Runnable{
 	
 	public static void sendMessage(String message){
 		try {
-			output.writeObject("CLIENT -  " + message);
+			output.writeObject("CLIENT - " + message);
 			output.flush();
 			ServerPanel.showMessage("\nCLIENT - " + message);
 		}catch(IOException ioException) {
 			System.out.println("\n ERROR CANT SEND THAT MESSAGE");
 		}
 	}
-	
-	public boolean getGame()
+
+	public static boolean lockBool(boolean tof)
 	{
-		return game;
+		return atomicBool.getAndSet(tof);
 	}
+	
 
 	@Override
 	public void run() {

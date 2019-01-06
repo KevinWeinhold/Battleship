@@ -1,6 +1,7 @@
 package battleship;
 
 import java.net.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.io.*;
 
 @SuppressWarnings("serial")
@@ -11,7 +12,7 @@ public class Server implements Runnable{
 	private ServerSocket server;
 	private Socket connection;
 	
-	private boolean game;
+	private static AtomicBoolean atomicBool = new AtomicBoolean(false);
 	
 	public void waitForConnection() throws IOException {
 		ServerPanel.showMessage(" Waiting for someone to connect... \n");
@@ -19,21 +20,29 @@ public class Server implements Runnable{
 		ServerPanel.showMessage(" Now connected to "+connection.getInetAddress().getHostName());
 	}
 	
-	private void setupStreams() throws IOException {
+	private void setupStreams() throws IOException{
 		output = new ObjectOutputStream(connection.getOutputStream());
 		output.flush();
 		input = new ObjectInputStream(connection.getInputStream());
 		ServerPanel.showMessage("\n Streams are now setup! \n");
+		App.setupGame();
 	}
 	
 	private void whileChatting() throws IOException {
-		String message = "You are now connected!";
-		sendMessage(message);
 		ServerPanel.ableToType(true);
+		String message = "";
 		do {
 			try {
-				message = (String)input.readObject();
+				message = (String) input.readObject();
 				ServerPanel.showMessage("\n" + message);
+				if(message.equals("CLIENT - CLIENT is ready!"))
+				{
+					//atomicBool.set(true);
+					App.waitForSetup();
+				}
+				else if(message.contains("FIRE ON:")) {
+					Game.getMove(message);
+				}
 			}catch(ClassNotFoundException classNotFoundException) {
 				ServerPanel.showMessage("\n idk wtf that user sent!");
 			}
@@ -54,7 +63,7 @@ public class Server implements Runnable{
 	
 	public static void sendMessage(String message){
 		try {
-			output.writeObject("SERVER -  " + message);
+			output.writeObject("SERVER - " + message);
 			output.flush();
 			ServerPanel.showMessage("\nSERVER - " + message);
 		}catch(IOException ioException) {
@@ -62,14 +71,13 @@ public class Server implements Runnable{
 		}
 	}
 	
-	public boolean getGame()
+	public static boolean lockBool(boolean tof)
 	{
-		return game;
+		return atomicBool.getAndSet(tof);
 	}
-
 	@Override
+	
 	public void run() {
-		System.out.print("here");
 		try
 		{
 			server = new ServerSocket(4444,100);
@@ -89,7 +97,5 @@ public class Server implements Runnable{
 		{
 			i.printStackTrace();
 		}
-		
 	}
-
 }
