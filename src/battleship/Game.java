@@ -43,9 +43,7 @@ public class Game {
 					//SET HOW MANY SHIPS HERE
 					if(index == 2) {
 						printMap();
-						for(Enumeration i = table.keys(); i.hasMoreElements();) {
-							System.out.println(i.nextElement());
-						}
+						
 						startTurns = true;
 						sendMessage(playerStatus +" is ready!");
 						if(!App.oneReady) {
@@ -63,12 +61,12 @@ public class Game {
 	
 	private static void makeMove(String command) {
 		int[] wrong = {-1,-1};
-		if(returnIndex(command) != wrong) {
+		if(!returnIndex(command).equals(wrong)) {
 			sendMessage("FIRE ON: " + command);
 			ServerPanel.ableToType(false);
 		}
 		else {
-			ServerPanel.showMessage("Incorrect Format");
+			ServerPanel.showMessage("\nIncorrect Format");
 		}
 	}
 	
@@ -81,6 +79,7 @@ public class Game {
 				map[i][j] = 2;
 				isShip("" + i + j);
 				printMap();
+				printTable();
 			}
 			else {
 				sendMessage("THATS A MISS");
@@ -111,14 +110,20 @@ public class Game {
 	private static int[] returnIndex(String position) {
 		String new_pos = position.toLowerCase();
 		final String alphabet = "abcdefghi";
-		int num1 = alphabet.indexOf(new_pos.charAt(0));
-		int num2 = Character.getNumericValue(new_pos.charAt(1))-1;
-		if(num1 == -1 || num2 == -1) {
+		try {
+			int num1 = alphabet.indexOf(new_pos.charAt(0));
+			int num2 = Character.getNumericValue(new_pos.charAt(1))-1;
+			if(num1 == -1 || num2 == -1) {
+				return new int[] {-1, -1};
+			}
+			else {
+				return new int[] {num1, num2};
+			}
+		}
+		catch (IndexOutOfBoundsException e){
+			ServerPanel.showMessage("\n Invalid form. Must be like A1 ");
 			return new int[] {-1, -1};
-		}
-		else {
-			return new int[] {num1, num2};
-		}
+		}	
 	}
 	
 	/*Assign the ships in order as they appear in the ships array.
@@ -187,6 +192,7 @@ public class Game {
 				int  new_val = (int) table.get(key) - 1;
 				if(new_val == 0) {
 					sendMessage("YOU SUNK MY BATTLESHIP!!!");
+					table.remove(key);
 				}
 				table.put(key, new_val);
 				break;
@@ -223,5 +229,12 @@ public class Game {
 			System.out.print("\n");
 		}
 		System.out.print("\n");
+	}
+	
+	private static void printTable() {
+		for(Enumeration i = table.keys(); i.hasMoreElements();) {
+			String key = (String) i.nextElement();
+			System.out.println(key + ": " + table.get(key));
+		}
 	}
 }

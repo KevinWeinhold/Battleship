@@ -97,5 +97,5 @@ public class Gui extends JFrame implements ActionListener{
 		ServerPanel.ableToType(tof);
 	}
 
-	
+
 }
