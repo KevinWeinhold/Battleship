@@ -1,23 +1,32 @@
 package battleship;
+import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 @SuppressWarnings("serial")
 public class GamePanel extends JPanel{
-	private static final int DEFAULT_WIDTH = 800;
+	private static final int DEFAULT_WIDTH = 600;
 	private static final int DEFAULT_HEIGHT = 600;
+	private JTextField userText;
+	private JTextArea chatWindow;
 	
 	public GamePanel()
 	{
 		super();
 		this.setPreferredSize(new Dimension(DEFAULT_WIDTH,DEFAULT_HEIGHT));
 		this.setVisible(true);
-		this.setBackground(Color.white);
-		
+		this.setBackground(Color.white);		
 	}
+
 	
 	public void paintComponent(Graphics g)
 	{
@@ -44,8 +53,8 @@ public class GamePanel extends JPanel{
 		for(int i = 0; i < 10; i++) {
 			current_y = 0;
 			for(int j = 0; j < 10; j++) {
-				Square tile = new Square(current_x, current_y, width, height, SquareEnumType.Miss);
-				g.setColor(tile.getColor(SquareEnumType.Miss));
+				//Square tile = new Square(current_x, current_y, width, height, SquareEnumType.Miss);
+				//g.setColor(tile.getColor(SquareEnumType.Miss));
 				g.drawRect(current_x, current_y, width, height);
 				current_y += 60;
 			}
@@ -66,3 +75,4 @@ public class GamePanel extends JPanel{
 		*/
 	}
 }
+
